@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html {
+            margin: 0;
+            overflow: hidden;
+            font-size: 16px;
+        }
+        body {
+            margin: 0;
+        }
+    </style>
+    <script>
+      window.onload = function() {
+	      document.querySelector("html").style.fontSize = Math.floor(document.body.clientWidth / 80) + "px";
+      }
+    </script>
+    <link type="text/css" rel="stylesheet" href="./material.min.css" />
+    <link type="text/css" rel="stylesheet" href="./bundle.css" />
+    <script src="./bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const app = new infinityMT({
+    target: document.getElementById('app')
+});
+</script>
+</body>
+</html>
