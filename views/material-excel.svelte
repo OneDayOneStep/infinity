@@ -1,19 +1,25 @@
 <script>
-	import { read, utils, writeFile } from 'xlsx';
-	import { writable } from 'svelte/store';
-	import Checkbox from '@smui/checkbox';
+  import { utils } from 'xlsx';
+  import { writable } from 'svelte/store';
+  import Checkbox from '@smui/checkbox';
+
+  const readWorker = new Worker("./read-excel-worker.js");
 
   let list = writable([]);
-	fetch("./material_origin.xlsx")
-		.then(res => res.arrayBuffer())
+  fetch("./material_origin.xlsx")
+    .then(res => res.arrayBuffer())
     .then(buffer => {
-	    const excel = read(buffer);
-	    const data = utils.sheet_to_json(excel.Sheets[excel.SheetNames[0]]);
-			list.set(data);
+      readWorker.postMessage(buffer);
     })
 
+  readWorker.onmessage = ev => {
+    const excelData = ev.data;
+    const data = utils.sheet_to_json(excelData.Sheets[excelData.SheetNames[0]]);
+    list.set(data);
+  }
+
   const clickRow = index => {
-		console.log(list);
+    console.log(list);
   }
 </script>
 
