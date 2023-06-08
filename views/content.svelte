@@ -2,7 +2,7 @@
     import MaterialExcel from "./material-excel.svelte";
 </script>
 <section class="layout">
-    <header class="layout-header">INFINITY</header>
+    <header class="layout-header">InfinitySTUDIO</header>
     <section class="layout-content">
         <MaterialExcel />
     </section>
@@ -28,7 +28,6 @@
     .layout-content {
       flex: 1;
       height: 50vh;
-      overflow: auto;
     }
   }
 </style>

@@ -1,9 +1,11 @@
 <script>
   import {utils} from 'xlsx';
-  import {onDestroy} from 'svelte';
+  import {onDestroy, setContext} from 'svelte';
   import {writable, derived} from 'svelte/store';
   import Checkbox from '@smui/checkbox';
   import Textfield from '@smui/textfield';
+  //
+  import MaterialNext from "./material-next.svelte";
 
   const readWorker = new Worker("./read-excel-worker.js");
 
@@ -20,18 +22,22 @@
       // header: 1,
       // blankrows: true
     });
-    console.log(data);
-    data.forEach(row => {
-      row.isChecked = false;
-      row.isFiltered = true;
-      if (typeof row.__EMPTY_3 === "string" && row.__EMPTY_3.includes("单价")) {
-        row.isTitle = true;
-        row.__EMPTY_3 = "Price";
-      }
-      row.__EMPTY_1 = row.__EMPTY_1 || "";
-      row.__EMPTY_2 = row.__EMPTY_2 || "";
-      row.__EMPTY_3 = row.__EMPTY_3 || "";
-    })
+		for (let i = 0;i < data.length;i++) {
+			const row = data[i];
+			if (!row.__EMPTY_1 && !row.__EMPTY_2 && !row.__EMPTY_3) {
+				data.splice(i--, 1);
+				continue;
+			}
+			row.isChecked = false;
+			row.isFiltered = true;
+			if (typeof row.__EMPTY_3 === "string" && row.__EMPTY_3.includes("单价")) {
+				row.isTitle = true;
+				row.__EMPTY_3 = "Price";
+			}
+			row.__EMPTY_1 = row.__EMPTY_1 || "";
+			row.__EMPTY_2 = row.__EMPTY_2 || "";
+			row.__EMPTY_3 = row.__EMPTY_3 || "";
+    }
     excelList.set(data);
   }
 
@@ -56,6 +62,13 @@
       priceCount
     }
   });
+
+	const clearSelected = () => {
+		$excelList.forEach(row => {
+			row.isChecked = false;
+		})
+		excelList.set($excelList);
+  }
 
   let searchText = writable("");
   let changeSearchConditionTimer = null;
@@ -83,8 +96,17 @@
   });
 
   onDestroy(unsubscribe_Search);
+
+	const nextVisible = writable(false);
+  setContext("visible", nextVisible);
+	const nextStepDisplay = status => {
+		console.log(123);
+		nextVisible.set(status);
+  }
+
 </script>
 
+<MaterialNext nextStepDisplay={nextStepDisplay} />
 <div class="material-excel">
   <!-- top -->
   <div class="material-excel-top">
@@ -118,15 +140,22 @@
   </div>
   <!-- bottom -->
   <div class="material-excel-bottom">
-    <span style="margin-right: 3em;">
-      <span style="font-size: 0.7em;font-weight: 600;">{ $searchText }SELECTED : </span>
+    <span style="width: 11em">
+      <span class="material-excel-bottom-mini-font">SELECTED : </span>
       { $selectedRows.size }
+      <span class="material-excel-bottom-mini-font"
+            style="opacity: { $selectedRows.size > 0 ? 1 : 0 }"
+            on:click={clearSelected}>
+         ( EMPTY )
+      </span>
     </span>
     <span>
-      <span style="font-size: 0.7em;font-weight: 600;">BASE PRICE : </span>
+      <span class="material-excel-bottom-mini-font">BASE PRICE : </span>
       { $selectedRows.priceCount }
     </span>
-    <div class="material-excel-detail">NEXT</div>
+    <div class="material-excel-detail"
+         style="opacity: { $selectedRows.size > 0 ? 1 : 0 }"
+         on:click={() => nextStepDisplay(true)}>NEXT</div>
   </div>
 
 </div>
@@ -142,9 +171,11 @@
   // top
   .material-excel-top {
     margin: 1rem;
+    user-select: none;
   }
   // bottom
   .material-excel-bottom {
+    user-select: none;
     box-shadow: 0 0 0.35rem #AAA;
     position: relative;
     z-index: 50;
@@ -153,16 +184,32 @@
     align-items: center;
     padding-left: 1.5em;
     font-size: 1.5em;
-    margin-top: 0.35rem;
+    margin-top: 1rem;
     .material-excel-detail {
       height: 100%;
       background-color: #58BE6B;
       color: #FFF;
+      transform-origin: right bottom;
+      transform: scale(1.5);
+      border-radius: 1rem 0 0 0;
       cursor: pointer;
       margin-left: auto;
       display: flex;
       align-items: center;
-      padding: 0 2rem;
+      padding: 0.1rem 2rem 0;
+      transition: opacity 300ms;
+      &:active {
+        transform: scale(1.4);
+        opacity: 0.9;
+      }
+    }
+    .material-excel-bottom-mini-font {
+      font-size: 0.7em;
+      font-weight: 600;
+      &:hover {
+        cursor: pointer;
+        text-decoration: underline;
+      }
     }
   }
   // list
@@ -173,6 +220,12 @@
     padding-right: 1rem;
     padding-bottom: 5rem;
     overflow: auto;
+    &:after {
+      content: "";
+      display: block;
+      height: 1px;
+      background-color: #EEE;
+    }
   }
   .material-excel-row {
     display: flex;
@@ -197,9 +250,6 @@
         border-color: #58BE6B !important;
         height: 2.6em;
       }
-    }
-    &:last-child {
-      border-width: 1px 0 1px 1px;
     }
     &:hover {
       background-color: #58BE6B44;
