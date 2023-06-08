@@ -1,12 +1,13 @@
 <script>
-  import { utils } from 'xlsx';
-  import { writable, derived } from 'svelte/store';
+  import {utils} from 'xlsx';
+  import {onDestroy} from 'svelte';
+  import {writable, derived} from 'svelte/store';
   import Checkbox from '@smui/checkbox';
   import Textfield from '@smui/textfield';
 
   const readWorker = new Worker("./read-excel-worker.js");
 
-  let excelList = writable([]);
+  const excelList = writable([]);
   fetch("./material_origin.xlsx")
     .then(res => res.arrayBuffer())
     .then(buffer => {
@@ -15,64 +16,95 @@
 
   readWorker.onmessage = ev => {
     const excelData = ev.data;
-    const data = utils.sheet_to_json(excelData.Sheets[excelData.SheetNames[0]]);
-		data.forEach(row => {
-			row.isChecked = false;
-			row.isFiltered = true;
-			if (typeof row.__EMPTY_3 === "string" && row.__EMPTY_3.includes("单价")) {
-				row.isTitle = true;
-				row.__EMPTY_3 = "Price";
+    const data = utils.sheet_to_json(excelData.Sheets[excelData.SheetNames[0]], {
+      // header: 1,
+      // blankrows: true
+    });
+    console.log(data);
+    data.forEach(row => {
+      row.isChecked = false;
+      row.isFiltered = true;
+      if (typeof row.__EMPTY_3 === "string" && row.__EMPTY_3.includes("单价")) {
+        row.isTitle = true;
+        row.__EMPTY_3 = "Price";
       }
+      row.__EMPTY_1 = row.__EMPTY_1 || "";
+      row.__EMPTY_2 = row.__EMPTY_2 || "";
+      row.__EMPTY_3 = row.__EMPTY_3 || "";
     })
-	  excelList.set(data);
+    excelList.set(data);
   }
 
   const clickRow = index => {
-	  excelList.update(arr => {
-			arr[index].isChecked = !arr[index].isChecked;
-			return arr;
+    excelList.update(arr => {
+      arr[index].isChecked = !arr[index].isChecked;
+      return arr;
     })
   }
 
   const selectedRows = derived(excelList, $excelList => {
-		let size = 0;
-		let priceCount = 0;
-	  $excelList.forEach(row => {
-			if (row.isChecked) {
-				size++;
-				priceCount += typeof row.__EMPTY_3 === "number" ? row.__EMPTY_3 : 0;
+    let size = 0;
+    let priceCount = 0;
+    $excelList.forEach(row => {
+      if (row.isChecked) {
+        size++;
+        priceCount += typeof row.__EMPTY_3 === "number" ? row.__EMPTY_3 : 0;
       }
     });
-		return {
-			size,
-			priceCount
+    return {
+      size,
+      priceCount
     }
   });
 
-	let searchText = "";
+  let searchText = writable("");
+  let changeSearchConditionTimer = null;
 
+  const filterList = () => {
+    const text = $searchText.toUpperCase();
+    let currentClassify = null;
+    $excelList.forEach(row => {
+      if (row.isTitle) {
+        row.isFiltered = false;
+        currentClassify = row;
+      } else {
+        row.isFiltered = `${row.__EMPTY_1}***${row.__EMPTY_2}`.toUpperCase().includes(text);
+        if (row.isFiltered && currentClassify) {
+          currentClassify.isFiltered = true;
+        }
+      }
+    })
+    excelList.set($excelList);
+  }
+
+  const unsubscribe_Search = searchText.subscribe(() => {
+    clearTimeout(changeSearchConditionTimer);
+    changeSearchConditionTimer = setTimeout(filterList, 500);
+  });
+
+  onDestroy(unsubscribe_Search);
 </script>
 
 <div class="material-excel">
-
+  <!-- top -->
   <div class="material-excel-top">
     <Textfield
         style="width: 100%;"
         class="shaped-outlined"
         variant="outlined"
         label="SEARCH"
-        bind:value={searchText}
+        bind:value={$searchText}
     >
 <!--      <Icon class="material-icons" slot="leadingIcon">event</Icon>-->
     </Textfield>
   </div>
-
+  <!-- list -->
   <div class="material-excel-list">
-    {#each $excelList as { isFiltered, isChecked, isTitle, __EMPTY_1 = "", __EMPTY_2 = "", __EMPTY_3 = "" }, i}
+    {#each $excelList as { isFiltered, isChecked, isTitle, __EMPTY_1, __EMPTY_2, __EMPTY_3 }, i}
       <div class:material-excel-row={true}
            class:material-excel-title={isTitle}
-           class:material-excel-show={isFiltered}
-           on:click={() => clickRow(i)}>
+           class:material-excel-hidden={!isFiltered}
+           on:click={() => clickRow(i)} on:keydown={() => {}}>
         <div class="material-excel-item material-excel-item-check">
           {#if !isTitle}
             <Checkbox bind:checked={isChecked} />
@@ -84,10 +116,10 @@
       </div>
     {/each}
   </div>
-
+  <!-- bottom -->
   <div class="material-excel-bottom">
     <span style="margin-right: 3em;">
-      <span style="font-size: 0.7em;font-weight: 600;">SELECTED : </span>
+      <span style="font-size: 0.7em;font-weight: 600;">{ $searchText }SELECTED : </span>
       { $selectedRows.size }
     </span>
     <span>
@@ -149,8 +181,13 @@
     border-width: 1px 0 0 1px;
     transition: background-color 200ms, color 100ms;
     color: #444;
+    &.material-excel-hidden {
+      display: none;
+    }
     &.material-excel-title {
       background-color: #58BE6B !important;
+      border-color: #58BE6B !important;
+      border-bottom: #239538 1px solid !important;
       pointer-events: none;
       position: sticky;
       top: 0;
@@ -158,7 +195,7 @@
       .material-excel-item {
         color: #FFF !important;
         border-color: #58BE6B !important;
-        height: 2.5em;
+        height: 2.6em;
       }
     }
     &:last-child {
