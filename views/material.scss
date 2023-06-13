@@ -1,0 +1,134 @@
+// list
+.material-excel-list {
+  flex: 1;
+  height: 50vh;
+  margin-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 5rem;
+  overflow: auto;
+  &:after {
+    content: "";
+    display: block;
+    height: 1px;
+    background-color: #EEE;
+  }
+}
+.material-excel-row {
+  display: flex;
+  border-style: solid;
+  border-color: #EEE;
+  border-width: 1px 0 0 1px;
+  transition: background-color 200ms, color 100ms;
+  color: #444;
+  &.material-excel-hidden {
+    display: none;
+  }
+  &.material-excel-title {
+    background-color: #58BE6B !important;
+    border-color: #58BE6B !important;
+    border-bottom: #239538 1px solid !important;
+    pointer-events: none;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    .material-excel-item {
+      color: #FFF !important;
+      border-color: #58BE6B !important;
+      height: 2.6em;
+    }
+  }
+  &:hover {
+    background-color: #58BE6B44;
+    color: #000;
+    cursor: pointer;
+    .material-excel-item {
+      border-color: transparent;
+    }
+  }
+  &:active {
+    transform: translateY(1px);
+  }
+  .material-excel-item {
+    border-style: solid;
+    border-color: #EEE;
+    border-width: 0 1px 0 0;
+    padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
+    transition: border-color 200ms;
+    min-height: 30px;
+    &.material-excel-item-check {
+      width: 40px;
+      padding: 0;
+      text-align: center;
+    }
+    &.material-excel-item-en,
+    &.material-excel-item-cn {
+      width: 10rem;
+      flex: 1;
+    }
+    &.material-excel-item-price,
+    &.material-excel-item-num,
+    &.material-excel-item-price-total,
+    &.material-excel-item-control {
+      justify-content: center;
+      width: 5.5rem;
+    }
+    &.material-excel-item-price,
+    &.material-excel-item-price-total {
+      justify-content: end;
+    }
+    .material-excel-item-del {
+      user-select: none;
+      &:hover {
+        text-decoration: underline;
+        color: red;
+        cursor: pointer;
+      }
+      &:active {
+        color: #940000;
+      }
+    }
+  }
+}
+
+// bottom
+.material-excel-bottom {
+  user-select: none;
+  box-shadow: 0 0 0.35rem #AAA;
+  position: relative;
+  z-index: 50;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  padding-left: 1.5em;
+  font-size: 1.5em;
+  margin-top: 1rem;
+  .material-excel-detail {
+    height: 100%;
+    background-color: #58BE6B;
+    color: #FFF;
+    box-shadow: 0 0 0.1rem #FFF;
+    transform-origin: right bottom;
+    transform: scale(1.5);
+    border-radius: 1rem 0 0 0;
+    cursor: pointer;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    padding: 0.1rem 2rem 0;
+    transition: opacity 300ms;
+    &:active {
+      transform: scale(1.4);
+      opacity: 0.9;
+    }
+  }
+  .material-excel-bottom-mini-font {
+    font-size: 0.7em;
+    font-weight: 600;
+    &:hover {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  }
+}

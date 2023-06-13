@@ -22,7 +22,7 @@
       text-indent: 2rem;
       background-color: #58BE6B;
       color: #FFF;
-      text-shadow: 1px 2px 0 #444, 0 0 0.5rem #FFF;
+      text-shadow: 1px 2px 0 #444;
       box-shadow: 0 0 0.35rem #AAA;
     }
     .layout-content {

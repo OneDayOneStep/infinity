@@ -7,39 +7,52 @@
   //
   import MaterialNext from "./material-next.svelte";
 
-  const readWorker = new Worker("./read-excel-worker.js");
-
   const excelList = writable([]);
-  fetch("./material_origin.xlsx")
-    .then(res => res.arrayBuffer())
-    .then(buffer => {
-      readWorker.postMessage(buffer);
-    })
 
-  readWorker.onmessage = ev => {
-    const excelData = ev.data;
-    const data = utils.sheet_to_json(excelData.Sheets[excelData.SheetNames[0]], {
-      // header: 1,
-      // blankrows: true
-    });
+  // const readWorker = new Worker("./read-excel-worker.js");
+  // readWorker.onmessage = ev => {
+  //   const excelData = ev.data;
+	// 	initData(excelData);
+  // }
+  // fetch("./material_origin.xlsx")
+  //   .then(res => res.arrayBuffer())
+  //   .then(buffer => {
+  //     readWorker.postMessage(buffer);
+  //   })
+
+	const initData = excelData => {
+		console.log(excelData);
+		const data = utils.sheet_to_json(excelData.Sheets[excelData.SheetNames[0]], {
+			// header: 1,
+			// blankrows: true
+		});
 		for (let i = 0;i < data.length;i++) {
 			const row = data[i];
 			if (!row.__EMPTY_1 && !row.__EMPTY_2 && !row.__EMPTY_3) {
 				data.splice(i--, 1);
 				continue;
 			}
+			row.symbolId = Symbol();
 			row.isChecked = false;
 			row.isFiltered = true;
 			if (typeof row.__EMPTY_3 === "string" && row.__EMPTY_3.includes("单价")) {
 				row.isTitle = true;
+				row.goodsSize = "Num";
+				row.priceCount = "PriceCount";
+				row.control = "Control";
+				//
 				row.__EMPTY_3 = "Price";
+			} else {
+				row.goodsSize = 1;
+				row.priceCount = row.__EMPTY_3 || 0;
 			}
 			row.__EMPTY_1 = row.__EMPTY_1 || "";
 			row.__EMPTY_2 = row.__EMPTY_2 || "";
 			row.__EMPTY_3 = row.__EMPTY_3 || "";
-    }
-    excelList.set(data);
+		}
+		excelList.set(data);
   }
+	initData(materialData);
 
   const clickRow = index => {
     excelList.update(arr => {
@@ -99,14 +112,23 @@
 
 	const nextVisible = writable(false);
   setContext("visible", nextVisible);
-	const nextStepDisplay = status => {
-		console.log(123);
+	const changeNextDisplay = status => {
 		nextVisible.set(status);
+  }
+
+	// send to next page's data
+  setContext("excelData", excelList);
+	const updateExcelData = (rowId, propertyName, value) => {
+		excelList.update(currentList => {
+			const findIt = currentList.find(obj => obj.symbolId === rowId);
+			findIt && (findIt[propertyName] = value);
+			return currentList;
+		});
   }
 
 </script>
 
-<MaterialNext nextStepDisplay={nextStepDisplay} />
+<MaterialNext changeNextDisplay={changeNextDisplay} updateExcelData={updateExcelData} />
 <div class="material-excel">
   <!-- top -->
   <div class="material-excel-top">
@@ -155,7 +177,7 @@
     </span>
     <div class="material-excel-detail"
          style="opacity: { $selectedRows.size > 0 ? 1 : 0 }"
-         on:click={() => nextStepDisplay(true)}>NEXT</div>
+         on:click={() => changeNextDisplay(true)}>NEXT</div>
   </div>
 
 </div>
@@ -173,117 +195,6 @@
     margin: 1rem;
     user-select: none;
   }
-  // bottom
-  .material-excel-bottom {
-    user-select: none;
-    box-shadow: 0 0 0.35rem #AAA;
-    position: relative;
-    z-index: 50;
-    height: 2em;
-    display: flex;
-    align-items: center;
-    padding-left: 1.5em;
-    font-size: 1.5em;
-    margin-top: 1rem;
-    .material-excel-detail {
-      height: 100%;
-      background-color: #58BE6B;
-      color: #FFF;
-      transform-origin: right bottom;
-      transform: scale(1.5);
-      border-radius: 1rem 0 0 0;
-      cursor: pointer;
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      padding: 0.1rem 2rem 0;
-      transition: opacity 300ms;
-      &:active {
-        transform: scale(1.4);
-        opacity: 0.9;
-      }
-    }
-    .material-excel-bottom-mini-font {
-      font-size: 0.7em;
-      font-weight: 600;
-      &:hover {
-        cursor: pointer;
-        text-decoration: underline;
-      }
-    }
-  }
-  // list
-  .material-excel-list {
-    flex: 1;
-    height: 50vh;
-    margin-left: 1rem;
-    padding-right: 1rem;
-    padding-bottom: 5rem;
-    overflow: auto;
-    &:after {
-      content: "";
-      display: block;
-      height: 1px;
-      background-color: #EEE;
-    }
-  }
-  .material-excel-row {
-    display: flex;
-    border-style: solid;
-    border-color: #EEE;
-    border-width: 1px 0 0 1px;
-    transition: background-color 200ms, color 100ms;
-    color: #444;
-    &.material-excel-hidden {
-      display: none;
-    }
-    &.material-excel-title {
-      background-color: #58BE6B !important;
-      border-color: #58BE6B !important;
-      border-bottom: #239538 1px solid !important;
-      pointer-events: none;
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      .material-excel-item {
-        color: #FFF !important;
-        border-color: #58BE6B !important;
-        height: 2.6em;
-      }
-    }
-    &:hover {
-      background-color: #58BE6B44;
-      color: #000;
-      cursor: pointer;
-      .material-excel-item {
-        border-color: transparent;
-      }
-    }
-    &:active {
-      transform: translateY(1px);
-    }
-    .material-excel-item {
-      border-style: solid;
-      border-color: #EEE;
-      border-width: 0 1px 0 0;
-      padding: 0 0.5rem;
-      display: flex;
-      align-items: center;
-      transition: border-color 200ms;
-      &.material-excel-item-check {
-        width: 40px;
-        padding: 0;
-        text-align: center;
-      }
-      &.material-excel-item-en,
-      &.material-excel-item-cn {
-        width: 10rem;
-        flex: 1;
-      }
-      &.material-excel-item-price {
-        width: 10rem;
-        justify-content: end;
-      }
-    }
-  }
+  // material common
+  @import "material";
 </style>
