@@ -2,6 +2,7 @@
 	import { getContext } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { derived } from 'svelte/store';
+	import Textfield from "@smui/textfield";
   import exportExcel from "../exportExcel";
 
 	let visible = getContext("visible");
@@ -46,9 +47,14 @@
   }
 
 	const startExport = () => {
-		exportExcel($excelData);
+		exportExcel($excelData, params);
 		// exportExcel($selectedExcelData);
 		// window.requestAnimationFrame(() => changeNextDisplay(false));
+  }
+
+	const params = {
+		days: 1,
+		discount: "100%",
   }
 
 </script>
@@ -56,6 +62,11 @@
 {#if $visible}
   <div class="material-next-mask" transition:fade="{{ duration: 400 }}" on:click={() => changeNextDisplay(false)}></div>
   <div class="material-next" transition:fly="{{ x: '100%', duration: 350 }}">
+
+    <div class="material-next-top" style="margin-top: 1rem;padding-left: 1rem;">
+      <Textfield variant="filled" label="Days" bind:value={params.days} style="margin-right: 1rem;" />
+      <Textfield variant="filled" label="Discount" bind:value={params.discount} />
+    </div>
 
     <div class="material-excel-list" style="margin-top: 1rem;">
       {#each $selectedExcelData as row, i}

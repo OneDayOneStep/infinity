@@ -3,6 +3,11 @@ import { utils } from "xlsx";
 export const wTn =
 	{ "A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9, "K": 10, "L": 11, "M": 12,
 		"N": 13, "O": 14, "P": 15, "Q": 16, "R": 17, "S": 18, "T": 19, "U": 20, "V": 21, "W": 22, "X": 23, "Y": 24, "Z": 25 };
+const _nTw = [];
+Object.keys(wTn).forEach((k, i) => {
+	_nTw[i] = k;
+})
+export const nTw = _nTw;
 
 const spaceHeight = 5;
 const spaceBgColor = "4F6228";
@@ -59,7 +64,7 @@ export default () => {
 		}
 	}
 	ws['B3'] = {
-		v: "小黑（澳门星光综艺馆）",
+		v: "Project S",
 		t: "s",
 		s: {
 			font: { name: "微软雅黑", sz: 12, bold: true },
@@ -75,7 +80,9 @@ export default () => {
 		}
 	}
 	ws['G3'] = {
-		v: "23/07/6-8",
+		v: new Date().getFullYear().toString().slice(2, 4) + "/" +
+			(new Date().getMonth() + 1).toString().padStart(2, "0") + "/" +
+			new Date().getDate().toString(),
 		t: "s",
 		s: {
 			font: { name: "微软雅黑", sz: 12, bold: true },
