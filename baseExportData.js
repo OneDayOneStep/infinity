@@ -1,6 +1,6 @@
 import { utils } from "xlsx";
 
-const wTn =
+export const wTn =
 	{ "A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9, "K": 10, "L": 11, "M": 12,
 		"N": 13, "O": 14, "P": 15, "Q": 16, "R": 17, "S": 18, "T": 19, "U": 20, "V": 21, "W": 22, "X": 23, "Y": 24, "Z": 25 };
 
@@ -23,9 +23,9 @@ export default () => {
 	ws["!cols"][wTn.J] = { wch: 30 };
 	// rowHeight
 	ws['!rows'] = ws['!rows'] || [];
-	ws['!rows'][0] = { hpt: 40 };
-	ws['!rows'][2] = { hpt: 35 };
+	ws['!rows'][1] = { hpt: 40 };
 	ws['!rows'][3] = { hpt: 35 };
+	ws['!rows'][4] = { hpt: 35 };
 	// merge
 	ws['!merges'] = ws['!merges'] || [];
 	ws['!merges'].push({ s: { c: wTn.A, r: 1 }, e: { c: wTn.J, r: 1,  } });
@@ -82,93 +82,62 @@ export default () => {
 			alignment: { horizontal: 'center', vertical: 'center' },
 		}
 	}
+	const headerStyle = {
+		fill: { fgColor: { rgb: headerBgColor } },
+		font: { name: "微软雅黑", sz: 9, bold: true },
+		alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+	};
 	ws['A4'] = {
 		v: "序号\nNumber",
 		t: "s",
-		s: {
-			fill: { fgColor: { rgb: headerBgColor } },
-			font: { name: "微软雅黑", sz: 9, bold: true },
-			alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-		}
+		s: headerStyle
 	}
 	ws['B4'] = {
 		v: "详细\nDetailed",
 		t: "s",
-		s: {
-			fill: { fgColor: { rgb: headerBgColor } },
-			font: { name: "微软雅黑", sz: 9, bold: true },
-			alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-		}
+		s: headerStyle
 	}
 	ws['D4'] = {
 		v: "数量\nQuantity",
 		t: "s",
-		s: {
-			fill: { fgColor: { rgb: headerBgColor } },
-			font: { name: "微软雅黑", sz: 9, bold: true },
-			alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-		}
+		s: headerStyle
 	}
 	ws['E4'] = {
 		v: "出租价/天\nUnit Price",
 		t: "s",
-		s: {
-			fill: { fgColor: { rgb: headerBgColor } },
-			font: { name: "微软雅黑", sz: 9, bold: true },
-			alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-		}
+		s: headerStyle
 	}
 	ws['F4'] = {
 		v: "天数\nDays",
 		t: "s",
-		s: {
-			fill: { fgColor: { rgb: headerBgColor } },
-			font: { name: "微软雅黑", sz: 9, bold: true },
-			alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-		}
+		s: headerStyle
 	}
 	ws['G4'] = {
 		v: "金额\nAmount",
 		t: "s",
-		s: {
-			fill: { fgColor: { rgb: headerBgColor } },
-			font: { name: "微软雅黑", sz: 9, bold: true },
-			alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-		}
+		s: headerStyle
 	}
 	ws['H4'] = {
 		v: "折扣\nDiscount",
 		t: "s",
-		s: {
-			fill: { fgColor: { rgb: headerBgColor } },
-			font: { name: "微软雅黑", sz: 9, bold: true },
-			alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-		}
+		s: headerStyle
 	}
 	ws['I4'] = {
 		v: "折扣金额\nDiscount amount",
 		t: "s",
-		s: {
-			fill: { fgColor: { rgb: headerBgColor } },
-			font: { name: "微软雅黑", sz: 9, bold: true },
-			alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-		}
+		s: headerStyle
 	}
 	ws['J4'] = {
 		v: "备注\nRemarks",
 		t: "s",
-		s: {
-			fill: { fgColor: { rgb: headerBgColor } },
-			font: { name: "微软雅黑", sz: 9, bold: true },
-			alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-		}
+		s: headerStyle
 	}
 	setSpaceRow(ws, 5);
 	return ws;
 }
 
-const setSpaceRow = (ws, rowNum) => {
-	ws['!rows'][rowNum - 1] = { hpt: spaceHeight };
+export const setSpaceRow = (ws, rowNum) => {
+	ws['!rows'][rowNum] = { hpt: spaceHeight };
 	ws[`A${rowNum}`] = {
 		v: "",
 		t: "s",

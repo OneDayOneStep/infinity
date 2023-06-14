@@ -46,7 +46,8 @@
   }
 
 	const startExport = () => {
-		exportExcel($selectedExcelData);
+		exportExcel($excelData);
+		// exportExcel($selectedExcelData);
 		// window.requestAnimationFrame(() => changeNextDisplay(false));
   }
 

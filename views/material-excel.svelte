@@ -12,7 +12,7 @@
   // const readWorker = new Worker("./read-excel-worker.js");
   // readWorker.onmessage = ev => {
   //   const excelData = ev.data;
-	// 	initData(excelData);
+  // 	initData(excelData);
   // }
   // fetch("./material_origin.xlsx")
   //   .then(res => res.arrayBuffer())
@@ -20,39 +20,50 @@
   //     readWorker.postMessage(buffer);
   //   })
 
-	const initData = excelData => {
-		console.log(excelData);
-		const data = utils.sheet_to_json(excelData.Sheets[excelData.SheetNames[0]], {
-			// header: 1,
-			// blankrows: true
-		});
-		for (let i = 0;i < data.length;i++) {
-			const row = data[i];
-			if (!row.__EMPTY_1 && !row.__EMPTY_2 && !row.__EMPTY_3) {
-				data.splice(i--, 1);
-				continue;
-			}
-			row.symbolId = Symbol();
-			row.isChecked = false;
-			row.isFiltered = true;
-			if (typeof row.__EMPTY_3 === "string" && row.__EMPTY_3.includes("单价")) {
-				row.isTitle = true;
-				row.goodsSize = "Num";
-				row.priceCount = "PriceCount";
-				row.control = "Control";
-				//
-				row.__EMPTY_3 = "Price";
-			} else {
-				row.goodsSize = 1;
-				row.priceCount = row.__EMPTY_3 || 0;
-			}
-			row.__EMPTY_1 = row.__EMPTY_1 || "";
-			row.__EMPTY_2 = row.__EMPTY_2 || "";
-			row.__EMPTY_3 = row.__EMPTY_3 || "";
-		}
-		excelList.set(data);
+  const initData = excelData => {
+    console.log(excelData);
+    const data = utils.sheet_to_json(excelData.Sheets[excelData.SheetNames[0]], {
+      // header: 1, blankrows: true
+    });
+    let currentType = "normal";
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      if (!row.__EMPTY_1 && !row.__EMPTY_2 && !row.__EMPTY_3) {
+        data.splice(i--, 1);
+        continue;
+      }
+      if (typeof row.__EMPTY_3 === "string" && row.__EMPTY_3.includes("单价")) {
+        if (row.__EMPTY_2.includes("耗材")) {
+          currentType = "consumable";
+        } else if (row.__EMPTY_2.includes("助理")) {
+          currentType = "staff";
+        } else {
+          currentType = "normal";
+        }
+        row.isTitle = true;
+        //
+        row.goodsSize = "Num";
+        row.priceCount = "PriceCount";
+        row.control = "Control";
+        //
+        row.__EMPTY_3 = "Price";
+      } else {
+        row.goodsSize = 1;
+        row.priceCount = row.__EMPTY_3 || 0;
+      }
+      row.rowType = currentType;
+      row.symbolId = Symbol();
+      row.isChecked = false;
+      row.isFiltered = true;
+      //
+      row.__EMPTY_1 = row.__EMPTY_1 || "";
+      row.__EMPTY_2 = row.__EMPTY_2 || "";
+      row.__EMPTY_3 = row.__EMPTY_3 || "";
+    }
+    console.log(data);
+    excelList.set(data);
   }
-	initData(materialData);
+  initData(materialData);
 
   const clickRow = index => {
     excelList.update(arr => {
@@ -76,11 +87,11 @@
     }
   });
 
-	const clearSelected = () => {
-		$excelList.forEach(row => {
-			row.isChecked = false;
-		})
-		excelList.set($excelList);
+  const clearSelected = () => {
+    $excelList.forEach(row => {
+      row.isChecked = false;
+    })
+    excelList.set($excelList);
   }
 
   let searchText = writable("");
@@ -110,20 +121,20 @@
 
   onDestroy(unsubscribe_Search);
 
-	const nextVisible = writable(false);
+  const nextVisible = writable(false);
   setContext("visible", nextVisible);
-	const changeNextDisplay = status => {
-		nextVisible.set(status);
+  const changeNextDisplay = status => {
+    nextVisible.set(status);
   }
 
-	// send to next page's data
+  // send to next page's data
   setContext("excelData", excelList);
-	const updateExcelData = (rowId, propertyName, value) => {
-		excelList.update(currentList => {
-			const findIt = currentList.find(obj => obj.symbolId === rowId);
-			findIt && (findIt[propertyName] = value);
-			return currentList;
-		});
+  const updateExcelData = (rowId, propertyName, value) => {
+    excelList.update(currentList => {
+      const findIt = currentList.find(obj => obj.symbolId === rowId);
+      findIt && (findIt[propertyName] = value);
+      return currentList;
+    });
   }
 
 </script>
