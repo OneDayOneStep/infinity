@@ -265,7 +265,7 @@ export default (data, params) => {
   URL.revokeObjectURL(downloadLink.href);
 }
 
-const setRowData = (ws, rowIndex, row, { days, discount }) => {
+const setRowData = (ws, rowIndex, row, { days = 1, discount = "100%" }) => {
   ws[`B${rowIndex}`] = {
     v: row.__EMPTY_2.trim(),
     t: "s",

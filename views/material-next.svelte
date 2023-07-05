@@ -47,8 +47,7 @@
   }
 
 	const startExport = () => {
-		exportExcel($excelData, params);
-		// exportExcel($selectedExcelData);
+		exportExcel($selectedExcelData, params);
 		// window.requestAnimationFrame(() => changeNextDisplay(false));
   }
 
@@ -142,16 +141,6 @@
     box-shadow: 0 0 0.5rem #555;
     display: flex;
     flex-direction: column;
-    .material-excel-item-num-input {
-      text-align: center;
-      width: 100%;
-      border: none;
-    }
-    .material-excel-item-num-input::-webkit-inner-spin-button,
-    .material-excel-item-num-input::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
   }
   // material common
   @import "material";

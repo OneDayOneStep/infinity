@@ -75,15 +75,18 @@
   const selectedRows = derived(excelList, $excelList => {
     let size = 0;
     let priceCount = 0;
+		let goodsPriceCount = 0;
     $excelList.forEach(row => {
       if (row.isChecked) {
         size++;
         priceCount += typeof row.__EMPTY_3 === "number" ? row.__EMPTY_3 : 0;
+	      goodsPriceCount += row.__EMPTY_3 * row.goodsSize;
       }
     });
     return {
       size,
-      priceCount
+      priceCount,
+	    goodsPriceCount
     }
   });
 
@@ -155,10 +158,11 @@
   </div>
   <!-- list -->
   <div class="material-excel-list">
-    {#each $excelList as { isFiltered, isChecked, isTitle, __EMPTY_1, __EMPTY_2, __EMPTY_3 }, i}
+    {#each $excelList as { isFiltered, isChecked, isTitle, __EMPTY_1, __EMPTY_2, __EMPTY_3, goodsSize, priceCount, symbolId }, i}
       <div class:material-excel-row={true}
            class:material-excel-title={isTitle}
            class:material-excel-hidden={!isFiltered}
+           class:material-excel-selected={isChecked}
            on:click={() => clickRow(i)} on:keydown={() => {}}>
         <div class="material-excel-item material-excel-item-check">
           {#if !isTitle}
@@ -168,6 +172,22 @@
         <div class="material-excel-item material-excel-item-en">{ __EMPTY_1 }</div>
         <div class="material-excel-item material-excel-item-cn">{ __EMPTY_2 }</div>
         <div class="material-excel-item material-excel-item-price">{ __EMPTY_3 }</div>
+        <div class="material-excel-item material-excel-item-num">
+          {#if isTitle}
+            { goodsSize }
+          {:else}
+            <input type="number" value={goodsSize} class="material-excel-item-num-input" on:change={ev => {
+		            updateExcelData(symbolId, "goodsSize", ev.target.value);
+              }} />
+          {/if}
+        </div>
+        <div class="material-excel-item material-excel-item-price-total">
+          {#if isTitle}
+            { priceCount }
+          {:else}
+            { __EMPTY_3 * goodsSize }
+          {/if}
+        </div>
       </div>
     {/each}
   </div>
@@ -182,15 +202,18 @@
          ( EMPTY )
       </span>
     </span>
-    <span>
+
+    <span style="width: 11em">
       <span class="material-excel-bottom-mini-font">BASE PRICE : </span>
-      { $selectedRows.priceCount }
+      <span>{ $selectedRows.priceCount }</span>
     </span>
+
+    <span class="material-excel-bottom-mini-font">PRICE TOTAL : </span>
+    <span>{ $selectedRows.goodsPriceCount }</span>
     <div class="material-excel-detail"
          style="opacity: { $selectedRows.size > 0 ? 1 : 0 }"
          on:click={() => changeNextDisplay(true)}>NEXT</div>
   </div>
-
 </div>
 
 
