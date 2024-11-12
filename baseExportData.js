@@ -1,4 +1,8 @@
 import { utils } from "xlsx";
+import { COMPANY_INFOS } from "./companys";
+
+console.log(import.meta, 1)
+const companyInfo = COMPANY_INFOS[import.meta.env.VITE_COMPANY_NAME];
 
 export const wTn =
 	{ "A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9, "K": 10, "L": 11, "M": 12,
@@ -10,8 +14,6 @@ Object.keys(wTn).forEach((k, i) => {
 export const nTw = _nTw;
 
 const spaceHeight = 5;
-const spaceBgColor = "4F6228";
-const headerBgColor = "E2EFDA";
 export default () => {
 	const ws = utils.aoa_to_sheet([]);
 	// colWidth
@@ -90,52 +92,52 @@ export default () => {
 		}
 	}
 	const headerStyle = {
-		fill: { fgColor: { rgb: headerBgColor } },
+		fill: { fgColor: { rgb: companyInfo.headerBgColor } },
 		font: { name: "微软雅黑", sz: 9, bold: true },
 		alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
 	};
 	ws['A4'] = {
-		v: "序号\nNumber",
+		v: companyInfo.H_XH,
 		t: "s",
 		s: headerStyle
 	}
 	ws['B4'] = {
-		v: "详细\nDetailed",
+		v: companyInfo.H_XX,
 		t: "s",
 		s: headerStyle
 	}
 	ws['D4'] = {
-		v: "数量\nQuantity",
+		v: companyInfo.H_SL,
 		t: "s",
 		s: headerStyle
 	}
 	ws['E4'] = {
-		v: "出租价/天\nUnit Price",
+		v: companyInfo.H_CZJ,
 		t: "s",
 		s: headerStyle
 	}
 	ws['F4'] = {
-		v: "天数\nDays",
+		v: companyInfo.H_TS,
 		t: "s",
 		s: headerStyle
 	}
 	ws['G4'] = {
-		v: "金额\nAmount",
+		v: companyInfo.H_JE,
 		t: "s",
 		s: headerStyle
 	}
 	ws['H4'] = {
-		v: "折扣\nDiscount",
+		v: companyInfo.H_ZK,
 		t: "s",
 		s: headerStyle
 	}
 	ws['I4'] = {
-		v: "折扣金额\nDiscount amount",
+		v: companyInfo.H_ZKJE,
 		t: "s",
 		s: headerStyle
 	}
 	ws['J4'] = {
-		v: "备注\nRemarks",
+		v: companyInfo.H_BZ,
 		t: "s",
 		s: headerStyle
 	}
@@ -149,7 +151,7 @@ export const setSpaceRow = (ws, rowNum) => {
 		v: "",
 		t: "s",
 		s: {
-			fill: { fgColor: { rgb: spaceBgColor } }
+			fill: { fgColor: { rgb: companyInfo.spaceBgColor } }
 		}
 	}
 	ws['!merges'].push({ s: { c: wTn.A, r: rowNum }, e: { c: wTn.J, r: rowNum   } });

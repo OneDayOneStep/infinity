@@ -1,6 +1,8 @@
 import { utils, write } from "xlsx-js-style";
 import baseExportData, { setSpaceRow, wTn, nTw } from "./baseExportData";
+import { COMPANY_INFOS } from "./companys";
 
+const companyInfo = COMPANY_INFOS[process.env.VITE_COMPANY_NAME];
 const RMB = '"¥"#,##0.00_);\\("¥"#,##0.00\\)';
 const style = {
 	font: { name: "微软雅黑", sz: 8 },
@@ -83,7 +85,7 @@ export default (data, params) => {
 		}
 	}
 	worksheet[`J${rowIndex++}`] = {
-		v: "实报实销",
+		v: companyInfo.CLF,
 		t: "s",
 		s: {
 			font: { name: "微软雅黑", sz: 8, bold: true },
@@ -116,17 +118,7 @@ export default (data, params) => {
 	worksheet['!rows'][rowIndex++] = { hpt: 24 };
 	// remark row
 	worksheet[`A${rowIndex}`] = {
-		v: "备注：\n" +
-			"1）以上器材价格，不含税\n" +
-			"（人员/器材运输/耗材，核酸检测费用，实报实销）。\n" +
-			" 餐费另计，如有包餐可不计。 \n" +
-			"餐费收费标准准 早餐15元/人，午餐30元/人，晚餐30元/人\n" +
-			"\n" +
-			"2）器材出库前3天，器材还可作调整。器材一旦出库后，\n" +
-			"如不使用，不能作取消处理。\n" +
-			"\n" +
-			"3）凡客户租用InfinitySTUDIO器材，必须配备器材助理。\n" +
-			"未配备助理，器材如有损坏全部责任由租方负责。",
+		v: companyInfo.remarkLeft,
 		t: "s",
 		s: {
 			font: { name: "微软雅黑", sz: 10 },
@@ -135,18 +127,7 @@ export default (data, params) => {
 	}
 	worksheet['!merges'].push({ s: { c: wTn.A, r: rowIndex }, e: { c: wTn.D, r: rowIndex,  } });
 	worksheet[`E${rowIndex}`] = {
-		v: "助理工作收费标准：\n" +
-			"1）Calltime 06:00AM-00:00AM 时间段 \n" +
-			"专业助理 InfinitySTUDIO影棚：800元/人\n" +
-			"（到场起计工作10小时内，超时 100元/小时/人，不设停钟）\n" +
-			"\n" +
-			"2）Calltime 00:00AM-06:00AM 时间段 ：1500元/人\n" +
-			"（到场起计工作6小时内，超时300元/小时/人，不设停钟）\n" +
-			"\n" +
-			"3）非广东省内助理费用加收200元/人\n" +
-			"\n" +
-			"4）路程时间4-8h，人员按照半天收费\n" +
-			"路程时间8h-12h，人员按照一天收费",
+		v: companyInfo.remarkRight,
 		t: "s",
 		s: {
 			font: { name: "微软雅黑", sz: 10 },
@@ -188,7 +169,7 @@ export default (data, params) => {
 		z: RMB
 	}
 	worksheet[`J${rowIndex}`] = {
-		v: "不含税，不含人员超时费用\n器材报关/运费费用实报实销",
+		v: companyInfo.BHS,
 		t: "s",
 		s: {
 			font: { name: "微软雅黑", sz: 8, bold: true },
